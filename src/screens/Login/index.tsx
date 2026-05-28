@@ -1,6 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
 import { TextInput, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
@@ -9,85 +8,102 @@ import { RootStackParamList } from '../../../App';
 type NavigationProps = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 export default function Login() {
-    const navigation = useNavigation<NavigationProps>()
+    const navigation = useNavigation<NavigationProps>();
+
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#F4F7FC' }}>
+            <StatusBar style="dark" />
             <View style={styles.container}>
-
                 <View style={styles.inputArea}>
+                    <Text style={styles.tituloLogin}>Login</Text>
 
-                    <Text style={styles.tituloLogin}> Login </Text>
-                    <Text  style={styles.textoInstrucao}> Digite seu e-mail:</Text>
+                    <Text style={styles.textoInstrucao}>Digite seu e-mail:</Text>
                     <TextInput
-                        placeholder='Digite seu email'
+                        placeholder='exemplo@email.com'
                         keyboardType="email-address"
                         autoCapitalize="none"
                         autoCorrect={false}
                         autoComplete="email"
                         style={styles.textInput}
+                        placeholderTextColor="#999"
                     />
-                    <Text  style={styles.textoInstrucao}> Digite sua senha</Text>
+
+                    <Text style={styles.textoInstrucao}>Digite sua senha:</Text>
                     <TextInput
-                        placeholder='Digite sua senha'
+                        placeholder='Sua senha'
                         secureTextEntry={true}
                         style={styles.textInput}
+                        placeholderTextColor="#999"
                     />
-                    <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.button}>
-                        <Text style={styles.text}>Login</Text>
-                    </TouchableOpacity>
 
+                    <TouchableOpacity onPress={() => navigation.replace('Home')} style={styles.button}>
+                        <Text style={styles.text}>Entrar</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         </SafeAreaView>
-
     );
 }
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: "#4D6CFA"
+        backgroundColor: "#F4F7FC"
     },
     inputArea: {
-        backgroundColor: 'rgb(180, 180, 206)',
-        height: "60%",
-        borderRadius: 10,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
         width: "90%",
+        padding: 25,
         justifyContent: 'center',
-        alignItems: 'stretch', // Estica os filhos para usar a largura total disponível
-        paddingHorizontal: 20 // Cria uma margem interna nas laterais esquerda e direita
+        alignItems: 'stretch',
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
     tituloLogin: {
-        marginBottom: 20,
+        marginBottom: 25,
         fontWeight: 'bold',
-        fontSize: 25,
-        textAlign: 'left' // Alinha o título na esquerda
+        fontSize: 28,
+        textAlign: 'left',
+        color: '#1A1A1A'
     },
-    textoInstrucao: { // Classe para os textos de orientação
-        textAlign: 'left', // Garante o texto na esquerda
-        marginBottom: 5,
+    textoInstrucao: {
+        textAlign: 'left',
+        marginBottom: 8,
         fontSize: 14,
-        color: '#333'
+        fontWeight: '500',
+        color: '#555'
     },
     textInput: {
-        backgroundColor: 'white',
+        backgroundColor: '#F9F9FB',
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
         borderRadius: 10,
-        marginBottom: 15,
-        paddingHorizontal: 15, // Afasta o texto digitado da borda esquerda do input
-        height: 45,
-        textAlign: 'left' // Texto digitado começa na esquerda
+        marginBottom: 20,
+        paddingHorizontal: 15,
+        height: 50,
+        fontSize: 15,
+        color: '#333'
     },
     button: {
         backgroundColor: '#4D6CFA',
-        height: 45,
+        height: 50,
         borderRadius: 10,
         justifyContent: 'center',
-        alignItems: 'center', // Mantém o texto "Login" centralizado dentro do botão
-        marginTop: 15
+        alignItems: 'center',
+        marginTop: 10
     },
     text: {
         color: 'white',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        fontSize: 16
     }
 });
