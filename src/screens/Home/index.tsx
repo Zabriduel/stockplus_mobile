@@ -35,6 +35,7 @@ export default function Home() {
                     <Text style={styles.info}>Vencimento próximo</Text>
                 </TouchableOpacity>
 
+
                 <TouchableOpacity style={styles.cards}>
                     <FontAwesome5 name="dolly-flatbed" size={45} color="#4D6CFA" style={styles.icons} />
                     <Text style={styles.info}>Movimentações</Text>
@@ -44,6 +45,13 @@ export default function Home() {
                     <FontAwesome5 name="exclamation-triangle" size={45} color="#4D6CFA" style={styles.icons} />
                     <Text style={styles.info}>Estoque mínimo</Text>
                 </TouchableOpacity>
+
+                <TouchableOpacity style={styles.cards}  onPress={() => navigation.navigate('Produtos')}>
+                    <FontAwesome5 name="hourglass-half" size={45} color="#4D6CFA" style={styles.icons} />
+                    <Text style={styles.info}>Produtos</Text>
+                </TouchableOpacity>
+
+               
             </View>
         </SafeAreaView>
     );

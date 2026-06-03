@@ -5,11 +5,15 @@ import Login from "./src/screens/Login";
 import Home from "./src/screens/Home";
 
 import React from "react";
+import Produtos from "./src/screens/Produtos";
 
 export type RootStackParamList = {
   Login: undefined,
   Home: undefined,
+  Produtos: undefined
 }
+
+
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
@@ -30,6 +34,14 @@ export default function App() {
           options={{
             headerShown: false
           }} />
+
+        <Stack.Screen
+          name="Produtos"
+          component={Produtos}
+          options={{
+            headerShown: false
+          }}
+        />
 
       </Stack.Navigator>
     </NavigationContainer>
