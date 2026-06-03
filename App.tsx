@@ -1,7 +1,7 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, } from 'react-native';
 import EstoqueMin from "./src/screens/EstoqueMin";
 
 export type RootStackParamList = {
