@@ -203,7 +203,7 @@ export default function LotesVencimento() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f7f7ff",
+    backgroundColor: "#F4F7FC",
     alignItems: "center",
     justifyContent: "center",
   },
