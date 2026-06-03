@@ -342,11 +342,13 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontSize: 26,
         marginBottom: 8,
+        alignSelf: "center"
     },
 
     subtitle: {
         color: "#031875",
         fontSize: 15,
+        alignSelf: "center"
     },
 
     abasContainer: {
@@ -354,6 +356,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         gap: 10,
         marginBottom: 14,
+        alignSelf: "center"
     },
 
     aba: {
@@ -381,6 +384,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         gap: 8,
         marginBottom: 10,
+        alignSelf: "center"
     },
 
     botaoOrdenacao: {
