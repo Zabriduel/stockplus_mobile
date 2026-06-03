@@ -1,8 +1,7 @@
 import { MovimentacaoRepository } from '../repositories/movimentacoes.repository';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, ScrollView, View, ActivityIndicator } from 'react-native';
-
+import { StyleSheet, Text, ScrollView, View, ActivityIndicator, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Movimentacao {
@@ -19,6 +18,15 @@ export default function MovimentacaoScreen() {
   const [movimentacoes, setMovimentacoes] = useState<Movimentacao[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selecionada, setSelecionada] = useState<Movimentacao | null>(null);
+  const [quantidade, setQuantidade] = useState('');
+  const [lote, setLote] = useState('');
+  const [tipoMov, setTipoMov] = useState('');
+  const [dataMov, setDataMov] = useState('');
+  const [menuAberto, setMenuAberto] = useState(false);
+  const [loteFiltro, setLoteFiltro] = useState('');
+  const [mostrarFiltro, setMostrarFiltro] = useState(false);
 
   async function buscarMovimentacoes() {
     try {
@@ -28,15 +36,12 @@ export default function MovimentacaoScreen() {
       const repository = new MovimentacaoRepository();
       const dados = await repository.findAll();
 
-      console.log('DADOS DA API:', dados);
-
       const lista = dados.movimentacoes || dados.resultado || dados.data || dados;
 
       if (Array.isArray(lista)) {
         setMovimentacoes(lista);
       } else {
         setMovimentacoes([]);
-        console.log('O retorno não é array:', lista);
       }
 
     } catch (error: any) {
@@ -45,6 +50,149 @@ export default function MovimentacaoScreen() {
     } finally {
       setCarregando(false);
     }
+  }
+
+  async function buscarPorLote() {
+    try {
+      const repository = new MovimentacaoRepository();
+
+      const dados = await repository.findByLote(Number(loteFiltro));
+
+      const lista = dados.movimentacoes || dados.resultado || dados.data || dados;
+
+      if (Array.isArray(lista)) {
+        setMovimentacoes(lista);
+      }
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function abrirCriar() {
+    setSelecionada(null);
+    setLote('');
+    setTipoMov('');
+    setQuantidade('');
+    setDataMov('');
+    setModalVisible(true);
+  }
+
+  function abrirEditar(item: Movimentacao) {
+    setSelecionada(item);
+    setLote(String(item.fk_id_lote));
+    setTipoMov(item.fk_id_tipo_mov === 4 ? 'Entrada' : 'Saída');
+    setQuantidade(String(item.qnt_movimentada));
+    setDataMov(new Date(item.data_movimentacao).toLocaleDateString('pt-BR'));
+    setModalVisible(true);
+  }
+
+  async function salvarMovimentacao() {
+    try {
+      const tipoId =
+        tipoMov.toLowerCase() === 'entrada'
+          ? 4
+          : tipoMov.toLowerCase() === 'saída' || tipoMov.toLowerCase() === 'saida'
+            ? 5
+            : 4;
+
+      const repository = new MovimentacaoRepository();
+
+      const dataBanco = formatarDataParaBanco(dataMov);
+      const ano = Number(dataBanco.substring(0, 4));
+
+      if (ano < 2000 || ano > 2035) {
+        alert('Digite uma data válida. Exemplo: 03/06/2026');
+        return;
+      }
+
+      const dados = {
+        idLote: Number(lote),
+        idTipoMov: tipoId,
+        qntMovimentada: Number(quantidade),
+        dataMovimentacao: dataBanco
+      };
+
+      if (selecionada) {
+        await repository.update(selecionada.id_movimentacoes, dados);
+      } else {
+        await repository.create(dados);
+      }
+
+      setModalVisible(false);
+      setSelecionada(null);
+      setLote('');
+      setTipoMov('');
+      setQuantidade('');
+      setDataMov('');
+
+      buscarMovimentacoes();
+
+    } catch (error: any) {
+      console.error('ERRO API:', error.response?.data || error.message);
+    }
+  }
+
+  async function excluirMovimentacao() {
+    if (!selecionada) return;
+
+    Alert.alert(
+      'Excluir movimentação',
+      'Tem certeza que deseja excluir esta movimentação?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel'
+        },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const repository = new MovimentacaoRepository();
+
+              await repository.delete(selecionada.id_movimentacoes);
+
+              setModalVisible(false);
+              setSelecionada(null);
+
+              buscarMovimentacoes();
+
+            } catch (error) {
+              console.error(error);
+            }
+          }
+        }
+      ]
+    );
+  }
+
+  function formatarDataDigitada(texto: string) {
+    const numeros = texto.replace(/\D/g, '');
+
+    if (numeros.length <= 2) {
+      return numeros;
+    }
+
+    if (numeros.length <= 4) {
+      return `${numeros.slice(0, 2)}/${numeros.slice(2)}`;
+    }
+
+    return `${numeros.slice(0, 2)}/${numeros.slice(2, 4)}/${numeros.slice(4, 8)}`;
+  }
+
+  function formatarDataParaBanco(data: string) {
+    if (data.includes('/')) {
+      const partes = data.split('/');
+
+      if (partes[0].length !== 2 || partes[1].length !== 2 || partes[2].length !== 4) {
+        throw new Error('Data inválida. Use o formato DD/MM/AAAA.');
+      }
+
+      return `${partes[2]}-${partes[1]}-${partes[0]}`;
+    }
+
+    return data;
   }
 
   useEffect(() => {
@@ -60,13 +208,79 @@ export default function MovimentacaoScreen() {
       <ScrollView contentContainerStyle={styles.container}>
         <StatusBar style="dark" />
 
-        <View style={styles.topo}>
-          <Text style={styles.title}>Movimentações</Text>
+        <View style={styles.topoLinha}>
+          <View>
+            <Text style={styles.title}>Movimentações</Text>
 
-          <Text style={styles.descricao}>
-            Controle de entradas e saídas realizadas no estoque.
-          </Text>
+            <Text style={styles.descricao}>
+              Controle de entradas e saídas realizadas no estoque.
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            style={styles.menuBotao}
+            onPress={() => setMenuAberto(!menuAberto)}
+          >
+            <Text style={styles.menuTexto}>☰</Text>
+          </TouchableOpacity>
         </View>
+
+        {menuAberto && (
+          <View style={styles.menuSuspenso}>
+            <TouchableOpacity
+              onPress={() => {
+                setMenuAberto(false);
+                abrirCriar();
+              }}
+            >
+              <Text style={styles.itemMenu}>Cadastrar</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => {
+                setMenuAberto(false);
+                setMostrarFiltro(true);
+              }}
+            >
+              <Text style={styles.itemMenu}>Filtrar lote</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {mostrarFiltro && (
+          <View style={{ marginBottom: 15 }}>
+
+            <TextInput
+              value={loteFiltro}
+              onChangeText={setLoteFiltro}
+              placeholder="Digite o ID do lote"
+              keyboardType="numeric"
+              style={styles.input}
+            />
+
+            <TouchableOpacity
+              style={styles.botaoSalvar}
+              onPress={buscarPorLote}
+            >
+              <Text style={styles.textoSalvar}>
+                Buscar
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => {
+                setLoteFiltro('');
+                setMostrarFiltro(false);
+                buscarMovimentacoes();
+              }}
+            >
+              <Text style={styles.textoCancelar}>
+                Limpar filtro
+              </Text>
+            </TouchableOpacity>
+
+          </View>
+        )}
 
         {carregando && (
           <ActivityIndicator
@@ -86,34 +300,18 @@ export default function MovimentacaoScreen() {
           <View style={styles.tabela}>
 
             <View style={styles.linhaTexto}>
-
-              <Text style={[styles.headerText, styles.coluna]}>
-                ID
-              </Text>
-
-              <Text style={[styles.headerText, styles.coluna]}>
-                Lote
-              </Text>
-
-              <Text style={[styles.headerText, styles.coluna]}>
-                Tipo
-              </Text>
-
-              <Text style={[styles.headerText, styles.coluna]}>
-                Qtd
-              </Text>
-
-              <Text style={[styles.headerText, styles.coluna]}>
-                Data
-              </Text>
-
+              <Text style={[styles.headerText, styles.coluna]}>ID</Text>
+              <Text style={[styles.headerText, styles.coluna]}>Lote</Text>
+              <Text style={[styles.headerText, styles.coluna]}>Tipo</Text>
+              <Text style={[styles.headerText, styles.coluna]}>Qtd</Text>
+              <Text style={[styles.headerText, styles.coluna]}>Data</Text>
             </View>
 
             {movimentacoes.map((item) => (
-
-              <View
+              <TouchableOpacity
                 style={styles.linha}
                 key={item.id_movimentacoes}
+                onPress={() => abrirEditar(item)}
               >
 
                 <Text style={[styles.text, styles.coluna]}>
@@ -143,8 +341,7 @@ export default function MovimentacaoScreen() {
                   {formatarData(item.data_movimentacao)}
                 </Text>
 
-              </View>
-
+              </TouchableOpacity>
             ))}
 
             {movimentacoes.length === 0 && (
@@ -163,17 +360,71 @@ export default function MovimentacaoScreen() {
 
         )}
 
+        <Modal
+          visible={modalVisible}
+          transparent
+          animationType="slide"
+        >
+          <View style={styles.modalOverlay}>
+
+            <View style={styles.modalContainer}>
+
+              <Text style={styles.modalTitle}>
+                {selecionada ? 'Editar Movimentação' : 'Nova Movimentação'}
+              </Text>
+
+              <Text style={styles.label}>Lote</Text>
+              <TextInput value={lote} onChangeText={setLote} keyboardType="numeric" placeholder="ID do lote" style={styles.input} />
+
+              <Text style={styles.label}>Tipo de movimentação</Text>
+              <TextInput value={tipoMov} onChangeText={setTipoMov} placeholder="Entrada ou Saída" style={styles.input} />
+
+              <Text style={styles.label}>Quantidade</Text>
+              <TextInput value={quantidade} onChangeText={setQuantidade} keyboardType="numeric" placeholder="Quantidade movimentada" style={styles.input} />
+
+              <Text style={styles.label}>Data</Text>
+              <TextInput value={dataMov} onChangeText={(texto) => setDataMov(formatarDataDigitada(texto))} keyboardType="numeric" placeholder="Ex: 03/06/2026" maxLength={10} style={styles.input} />
+
+              <TouchableOpacity
+                style={styles.botaoSalvar}
+                onPress={salvarMovimentacao}
+              >
+                <Text style={styles.textoSalvar}>
+                  Salvar
+                </Text>
+              </TouchableOpacity>
+
+              {selecionada && (
+                <TouchableOpacity
+                  style={styles.botaoExcluir}
+                  onPress={excluirMovimentacao}
+                >
+                  <Text style={styles.textoExcluir}>Excluir Movimentação</Text>
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.textoCancelar}>Cancelar</Text>
+              </TouchableOpacity>
+
+            </View>
+
+          </View>
+        </Modal>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-
   container: {
     flexGrow: 1,
-    backgroundColor: '#F3F6FB',
-    padding: 20
+    backgroundColor: '#F4F7FC',
+    paddingHorizontal: 20,
+    paddingBottom: 100,
+    paddingTop: 40
   },
 
   topo: {
@@ -209,7 +460,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#4D6CFA',
     paddingVertical: 14,
-    paddingHorizontal: 4
+    paddingHorizontal: 45
   },
 
   headerText: {
@@ -278,6 +529,135 @@ const styles = StyleSheet.create({
   textoSemDados: {
     color: '#6B7280',
     fontSize: 14
+  },
+
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)'
+  },
+
+  modalContainer: {
+    backgroundColor: '#FFFFFF',
+    width: '85%',
+    padding: 20,
+    borderRadius: 16
+  },
+
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#4D6CFA'
+  },
+
+  input: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 15
+  },
+
+  botaoSalvar: {
+    backgroundColor: '#4D6CFA',
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 10
+  },
+
+  textoSalvar: {
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontWeight: 'bold'
+  },
+
+  textoCancelar: {
+    textAlign: 'center',
+    color: '#EF4444',
+    fontWeight: 'bold'
+  },
+
+  label: {
+    color: '#374151',
+    fontWeight: 'bold',
+    fontSize: 13,
+    marginBottom: 6
+  },
+
+  botaoExcluir: {
+    backgroundColor: '#DC2626',
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 10
+  },
+
+  textoExcluir: {
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontWeight: 'bold'
+  },
+
+  topoLinha: {
+    alignItems: 'center',
+    marginBottom: 16
+  },
+
+  menuBotao: {
+    position: 'absolute',
+    right: 0,
+    top: -25,
+    backgroundColor: '#4D6CFA',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  menuTexto: {
+    color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: 'bold'
+  },
+
+  opcaoMenu: {
+    backgroundColor: '#FFFFFF',
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 16,
+    elevation: 3
+  },
+
+  opcaoMenuTexto: {
+    color: '#4D6CFA',
+    fontWeight: 'bold',
+    textAlign: 'center'
+  },
+
+  menuSuspenso: {
+    position: 'absolute',
+    top: 50,
+    right: 18,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingVertical: 8,
+    width: 130,
+    elevation: 8,
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8
+  },
+
+  itemMenu: {
+    color: '#374151',
+    fontWeight: '600',
+    fontSize: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 16
   }
 
 });
