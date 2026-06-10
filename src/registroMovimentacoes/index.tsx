@@ -25,9 +25,7 @@ export default function MovimentacaoScreen() {
   const [lote, setLote] = useState('');
   const [tipoMov, setTipoMov] = useState('');
   const [dataMov, setDataMov] = useState('');
-  const [menuAberto, setMenuAberto] = useState(false);
   const [loteFiltro, setLoteFiltro] = useState('');
-  const [mostrarFiltro, setMostrarFiltro] = useState(false);
 
   async function buscarMovimentacoes() {
     try {
