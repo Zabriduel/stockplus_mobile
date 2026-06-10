@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, ScrollView, View, ActivityIndicator, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
 interface Movimentacao {
   id_movimentacoes: number;
@@ -219,68 +220,56 @@ export default function MovimentacaoScreen() {
 
           <TouchableOpacity
             style={styles.menuBotao}
-            onPress={() => setMenuAberto(!menuAberto)}
+            onPress={abrirCriar}
           >
-            <Text style={styles.menuTexto}>☰</Text>
+            <Text style={styles.menuTexto}>+</Text>
           </TouchableOpacity>
         </View>
 
-        {menuAberto && (
-          <View style={styles.menuSuspenso}>
-            <TouchableOpacity
-              onPress={() => {
-                setMenuAberto(false);
-                abrirCriar();
-              }}
-            >
-              <Text style={styles.itemMenu}>Cadastrar</Text>
-            </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={() => {
-                setMenuAberto(false);
-                setMostrarFiltro(true);
-              }}
-            >
-              <Text style={styles.itemMenu}>Filtrar lote</Text>
-            </TouchableOpacity>
-          </View>
-        )}
 
-        {mostrarFiltro && (
-          <View style={{ marginBottom: 15 }}>
+        <View style={styles.filtroContainer}>
+          <TextInput
+            value={loteFiltro}
+            onChangeText={setLoteFiltro}
+            placeholder="Filtrar por lote"
+            keyboardType="numeric"
+            style={styles.inputFiltro}
+          />
 
-            <TextInput
-              value={loteFiltro}
-              onChangeText={setLoteFiltro}
-              placeholder="Digite o ID do lote"
-              keyboardType="numeric"
-              style={styles.input}
+          <TouchableOpacity
+            style={styles.iconeFiltro}
+            onPress={() => {
+              if (loteFiltro) {
+                buscarPorLote();
+              } else {
+                buscarMovimentacoes();
+              }
+            }}
+          >
+            <Ionicons
+              name="search"
+              size={20}
+              color="#4D6CFA"
             />
+          </TouchableOpacity>
 
+          {loteFiltro !== '' && (
             <TouchableOpacity
-              style={styles.botaoSalvar}
-              onPress={buscarPorLote}
-            >
-              <Text style={styles.textoSalvar}>
-                Buscar
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
+              style={styles.iconeLimpar}
               onPress={() => {
                 setLoteFiltro('');
-                setMostrarFiltro(false);
                 buscarMovimentacoes();
               }}
             >
-              <Text style={styles.textoCancelar}>
-                Limpar filtro
-              </Text>
+              <Ionicons
+                name="close"
+                size={18}
+                color="#6B7280"
+              />
             </TouchableOpacity>
-
-          </View>
-        )}
+          )}
+        </View>
 
         {carregando && (
           <ActivityIndicator
@@ -460,7 +449,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#4D6CFA',
     paddingVertical: 14,
-    paddingHorizontal: 45
+    paddingHorizontal: 4
   },
 
   headerText: {
@@ -658,6 +647,33 @@ const styles = StyleSheet.create({
     fontSize: 14,
     paddingVertical: 12,
     paddingHorizontal: 16
+  },
+
+  filtroContainer: {
+    position: 'relative',
+    marginBottom: 16
+  },
+
+  inputFiltro: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingLeft: 12,
+    paddingRight: 42,
+    backgroundColor: '#FFFFFF'
+  },
+
+  iconeFiltro: {
+    position: 'absolute',
+    right: 12,
+    top: 10
+  },
+
+  iconeLimpar: {
+    position: 'absolute',
+    right: 42,
+    top: 11
   }
 
 });
