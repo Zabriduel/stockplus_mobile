@@ -36,7 +36,7 @@ export default function Home() {
                 </TouchableOpacity>
 
 
-                <TouchableOpacity style={styles.cards}>
+                <TouchableOpacity style={styles.cards} onPress={() => navigation.navigate('MovimentacaoScreen')}>
                     <FontAwesome5 name="dolly-flatbed" size={45} color="#4D6CFA" style={styles.icons} />
                     <Text style={styles.info}>Movimentações</Text>
                 </TouchableOpacity>

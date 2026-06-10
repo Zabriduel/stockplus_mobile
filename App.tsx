@@ -4,20 +4,20 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Login from "./src/screens/Login";
 import Home from "./src/screens/Home";
 import EstoqueMin from "./src/screens/EstoqueMin/EstoqueMin";
+import MovimentacaoScreen from "./src/screens/registroMovimentacoes";
 
 import React from "react";
 import Produtos from "./src/screens/Produtos";
 import LotesVencimento from "./src/screens/LotesVencer";
 
 export type RootStackParamList = {
-  Login: undefined,
-  Home: undefined,
-  Produtos: undefined,
-  LotesVencimento: undefined,
-  EstoqueMin: undefined
-}
-
-
+  Login: undefined;
+  Home: undefined;
+  Produtos: undefined;
+  LotesVencimento: undefined;
+  MovimentacaoScreen: undefined;
+  EstoqueMin: undefined;
+};
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
@@ -25,10 +25,10 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
-          name='Login'
+          name="Login"
           component={Login}
           options={{
-            headerShown: false
+            headerShown: false,
           }}
         />
 
@@ -36,20 +36,30 @@ export default function App() {
           name="Home"
           component={Home}
           options={{
-            headerShown: false
-          }} />
-          <Stack.Screen
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="MovimentacaoScreen"
+          component={MovimentacaoScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
           name="EstoqueMin"
           component={EstoqueMin}
           options={{
-            headerShown: false
-          }} />
+            headerShown: false,
+          }}
+        />
 
-          <Stack.Screen
+        <Stack.Screen
           name="LotesVencimento"
           component={LotesVencimento}
           options={{
-            headerShown: false
+            headerShown: false,
           }}
         />
 
@@ -57,12 +67,10 @@ export default function App() {
           name="Produtos"
           component={Produtos}
           options={{
-            headerShown: false
+            headerShown: false,
           }}
         />
-
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
-
