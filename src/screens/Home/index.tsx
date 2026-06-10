@@ -30,7 +30,7 @@ export default function Home() {
 
 
             <View style={styles.cardsContainer}>
-                <TouchableOpacity style={styles.cards}>
+                <TouchableOpacity style={styles.cards} onPress={() => navigation.navigate('LotesVencimento')}>
                     <FontAwesome5 name="hourglass-half" size={45} color="#4D6CFA" style={styles.icons} />
                     <Text style={styles.info}>Vencimento próximo</Text>
                 </TouchableOpacity>

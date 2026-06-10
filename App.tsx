@@ -7,11 +7,13 @@ import EstoqueMin from "./src/screens/EstoqueMin/EstoqueMin";
 
 import React from "react";
 import Produtos from "./src/screens/Produtos";
+import LotesVencimento from "./src/screens/LotesVencer";
 
 export type RootStackParamList = {
   Login: undefined,
   Home: undefined,
   Produtos: undefined,
+  LotesVencimento: undefined,
   EstoqueMin: undefined
 }
 
@@ -42,6 +44,14 @@ export default function App() {
           options={{
             headerShown: false
           }} />
+
+          <Stack.Screen
+          name="LotesVencimento"
+          component={LotesVencimento}
+          options={{
+            headerShown: false
+          }}
+        />
 
         <Stack.Screen
           name="Produtos"
