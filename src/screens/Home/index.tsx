@@ -41,7 +41,7 @@ export default function Home() {
                     <Text style={styles.info}>Movimentações</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.cards}>
+                <TouchableOpacity style={styles.cards} onPress={() => navigation.navigate('EstoqueMin')}>
                     <FontAwesome5 name="exclamation-triangle" size={45} color="#4D6CFA" style={styles.icons} />
                     <Text style={styles.info}>Estoque mínimo</Text>
                 </TouchableOpacity>
